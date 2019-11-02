@@ -1,4 +1,4 @@
-//XXX 확인요망 코멘트 테스트
+//XXX 확인요망 코멘트 테스트!!
 const main = (...args) => {
     args.forEach(e => {
         console.log(e);
