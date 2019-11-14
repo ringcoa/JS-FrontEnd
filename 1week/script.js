@@ -38,9 +38,8 @@ const timeline = (function() {
         const app = document.querySelector(selector); 
         app.innerHTML += html;
 
-
-       
     }
+
 
     const del = function(){ 
         console.log(page)
@@ -56,6 +55,7 @@ const timeline = (function() {
         del : del
     }
 }());
+
 
 const test = function(test) {
     let _test = test;
@@ -76,7 +76,7 @@ TEST.test('TEST'); // TEST
 TEST.test(); // TEST
 
 const root = (async function() {
-    
+   
     await timeline.render();
     // await timeline.render();
     // await timeline.render();
@@ -84,6 +84,8 @@ const root = (async function() {
     // await timeline.render();
     // await timeline.render();
 }())
+
+
 
 document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
     tabButton.addEventListener('click', async function(e) {
@@ -97,19 +99,33 @@ document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
     });
 });
 
-window.addEventListener('scroll', async function(e) {
-    // TODO 화면의 적절한 위치까지 갔을 때만 Ajax 요청
-      if(pageYOffset > app.scrollHeight) { // TODO 100 대신 페이지의 거의 마지막에 닿은 Y좌표를 동적으로 가져온다
-         timeline.render(); //순서대로 안되고 한번에여러게의 데이터를 받아오네...ㅜㅜ
-         clearTimeout(timeline.render)
-        
-      }
-    if('' === _loading.style.display) {
-        return;
-    }
-    _loading.style.display = '';
-    // TODO info API에서 totalPage 받아와서, 거기까지만 요청하게 수정
+let timer; 
+window.addEventListener('scroll' , function(){
 
-    await timeline.render();
-    _loading.style.display = 'none';
-});
+    if (timer) {
+        clearTimeout(timer);
+    }   
+    timer = setTimeout(function() {
+        if(app.offsetHeight < window.scrollY   ) {
+            timeline.render()
+        }
+    }, 200);
+})
+
+
+// window.addEventListener('scroll', async function(e) {
+//     // TODO 화면의 적절한 위치까지 갔을 때만 Ajax 요청
+//       if(app.offsetHeight < window.scrollY   ) { // TODO 100 대신 페이지의 거의 마지막에 닿은 Y좌표를 동적으로 가져온다`
+
+//       
+        
+//       }
+//     if('' === _loading.style.display) {
+//         return;
+//     }
+//     _loading.style.display = '';
+//     // TODO info API에서 totalPage 받아와서, 거기까지만 요청하게 수정
+
+//     await timeline.render();
+//     _loading.style.display = 'none';
+// });
