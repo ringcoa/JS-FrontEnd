@@ -89,8 +89,10 @@ const root = (async function() {
 
 document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
     tabButton.addEventListener('click', async function(e) {
-        // TODO 버튼 누를 때는 1페이지로 새로 요청을 해야 함
+        // TODO 버튼 누를 때는 1페이지부터 새로 요청을 해야 함
+        // FIXME 조건이 잘못걸린 것 같습니다
         if('' === _loading.style.display) {
+            // FIXME page값은 timeline 모듈 내부에 있습니다 - 리셋할 수 있는 API를 timeline모듈이 제공하고, 해당 API를 호출 해주세요
             page = 1;
         }
         _loading.style.display = '';
@@ -99,14 +101,20 @@ document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
     });
 });
 
+// FIXME totalPage를 info API에서 받고, page가 totalPage에 닿으면 이벤트 reomve 해주세요
 let timer; 
 window.addEventListener('scroll' , function(){
-
+    // TODO 타임아웃 이벤트를 통해 성능튜닝을 하신 것 같습니다. 좋은 방법인 것 같아요.
     if (timer) {
         clearTimeout(timer);
     }   
     timer = setTimeout(function() {
-        if(app.offsetHeight < window.scrollY   ) {
+        // TODO 방법1 - 푸터의 시작점 - 살짝 위 (스크롤값 하드코딩)
+        // TODO 방법2 - 해당영역의 시작점 + 해당영역의 세로사이즈 - 살짝 위 (스크롤값 하드코딩)
+        // TODO 방법3 - 해당영역의 시작점 + 해당영역의 페이지사이즈 * (페이지 -1 ~ -0.5 정도 상대값)
+        // TODO document.querySelector('footer')의 DOM탐색이 반복적으로 일어나고 있습니다 - 변수에 DOM객체를 캐싱 해주세요
+        if(pageYOffset + document.scrollingElement.offsetHeight > document.querySelector('footer').offsetTop - 500) {
+            // TODO 로딩중엔 새 페이지 요청하지 못하게 막아주세요 - _loading.style.display 사용
             timeline.render()
         }
     }, 200);
