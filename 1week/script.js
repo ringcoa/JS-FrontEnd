@@ -14,15 +14,18 @@ const Timeline = function() {
     const selector = '#app';
     let page = 1;
     let totalPage = 1;
+    // TODO 별도의 VIEW 모듈이 존재하므로, 해당모듈 내부로 이동
     const app = document.querySelector(selector); 
 
+    // FIXME 로딩상태 제어로직 누락
     const create = async function() {
         timelineController.ajaxMore();
         totalPage = await timelineModel.getTotalPage();
+        // TODO 토탈페이지가 1보다 클 때만 이벤트ON
         onEvent();
-        console.log('렌더완료!')
     }
 
+    // TODO Timeline 모듈 자체가 컨트롤러 - timelineController는 해체해도 될 듯?
     const timelineController = (function() {
         const ajaxMore = async function() {
             const list = await timelineModel.getTimeline();
@@ -34,25 +37,16 @@ const Timeline = function() {
         }
 
         const scrollMore = async function(){
-            // TODO 타임아웃 이벤트를 통해 성능튜닝을 하신 것 같습니다. 좋은 방법인 것 같아요.
-            // if (timer) {
-            //     clearTimeout(timer);
-            // }   
-            // timer = setTimeout(function() {
-                // TODO 방법1 - 푸터의 시작점 - 살짝 위 (스크롤값 하드코딩)
-                // TODO 방법2 - 해당영역의 시작점 + 해당영역의 세로사이즈 - 살짝 위 (스크롤값 하드코딩)
-                // TODO 방법3 - 해당영역의 시작점 + 해당영역의 페이지사이즈 * (페이지 -1 ~ -0.5 정도 상대값)
-                // TODO document.querySelector('footer')의 DOM탐색이 반복적으로 일어나고 있습니다 - 변수에 DOM객체를 캐싱 해주세요
-                if(pageYOffset + document.scrollingElement.offsetHeight < document.querySelector('footer').offsetTop - 500) { return; }
-                if('' === _loading.style.display) { return; }
-                
-                _loading.style.display = '';
-                await timelineController.ajaxMore()
-                if(page > totalPage) {
-                    window.removeEventListener('scroll', scrollMore);
-                }
-                _loading.style.display = 'none';
-            // }, 200);
+            if(pageYOffset + document.scrollingElement.offsetHeight < document.querySelector('footer').offsetTop - 500) { return; }
+            if('' === _loading.style.display) { return; }
+            
+            _loading.style.display = '';
+            await timelineController.ajaxMore()
+            if(page > totalPage) {
+                // TODO offEvent 사용
+                window.removeEventListener('scroll', scrollMore);
+            }
+            _loading.style.display = 'none';
         };
 
         return {
@@ -105,6 +99,7 @@ const Timeline = function() {
 
     const destroy = function(){
         offEvent();
+        // TODO 별도의 VIEW가 존재하므로, 해당모듈 내부로 이동하고 API로 호출
         app.innerHTML = ""
     }
 
@@ -127,6 +122,7 @@ const Feed = (function(){
     const create = async function(){
         const data = await getFeedInfoData()
         _totalPage = data.totalPage
+        // FIXME 버그수정 - 작성한 코드를 디버깅, 어려우면 테스트라도 해주세요
         let datas = await getMoreFeedData()
         renderMoreFeed(await getMoreFeedData())
         const clientRect = _feed.getBoundingClientRect()
@@ -154,7 +150,6 @@ const Feed = (function(){
         const res = await fetch(_url +(_page+1));
         _page++
         const { data } = await res.json();
-        console.log(data)
         return data; 
     }
 
@@ -178,6 +173,7 @@ const Feed = (function(){
         window.removeEventListener('scroll' , handler)
     }
 
+    // TODO Timeline과 동일하게 구조 잡아주세요
     const handler = async function(e) {
         if(pageXOffset + document.body.offsetHeight <= _domTop + _domSize * (_page - 0.5) ){
             return
@@ -190,6 +186,7 @@ const Feed = (function(){
     create()
     return {
         destroy : destroy,
+        // TODO 제거
         getMoreFeedData : getMoreFeedData
     }
 })
@@ -202,8 +199,10 @@ const root = (async function() {
     // lnb
     let content = new Timeline();
     document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
+        // FIXME 탭전환 비정상작동 버그 픽스
         tabButton.addEventListener('click', async function(e) {
             if('' === _loading.style.display) { return; }
+            // TODO 로딩바는 비동기 요청 전후에만 on/off
             _loading.style.display = '';
             content.destroy();
             content = null;
@@ -214,35 +213,9 @@ const root = (async function() {
             }else{
                 return;
             }
+            // TODO 로딩바는 비동기 요청 전후에만 on/off
             _loading.style.display = 'none';
         });
     });
 
 }())
-
-
-
-
-
-
-
-// FIXME totalPage를 info API에서 받고, page가 totalPage에 닿으면 이벤트 reomve 해주세요
-// let timer; 
-
-
-// window.addEventListener('scroll', async function(e) {
-//     // TODO 화면의 적절한 위치까지 갔을 때만 Ajax 요청
-//       if(app.offsetHeight < window.scrollY   ) { // TODO 100 대신 페이지의 거의 마지막에 닿은 Y좌표를 동적으로 가져온다`
-
-//       
-        
-//       }
-//     if('' === _loading.style.display) {
-//         return;
-//     }
-//     _loading.style.display = '';
-//     // TODO info API에서 totalPage 받아와서, 거기까지만 요청하게 수정
-
-//     await timeline.render();
-//     _loading.style.display = 'none';
-// });
