@@ -11,21 +11,16 @@ const Slider = (() => {
         const leftBtn = slider.querySelector('#left');
         const rightBtn = slider.querySelector('#right');
         const ul = wrapper.querySelector('#slide');
-        const detail = document.querySelector('.ltEKP')
-        const targets = document.querySelectorAll('.detailImg[data-src')
         const url = urlBase + param.id;
         let width = wrapper.offsetWidth; // FIXME 화면 리사이즈시 변경
         let page = 1;
         let total = 1;
         const create = async () => {
             let data = await getData(url);
-            let detailData = await getDetailImg(url)
             total = data.imgList.length;
             renderImg(ul, data, width);
-            renderDetailImg(detailData)
             addEvent();
-            targets.forEach(lazyload)
-            
+           
         }
     
         const destroy = () => {
@@ -51,33 +46,7 @@ const Slider = (() => {
             pagebar.children[page - 1].classList.add('XCodT');
         }
 
-        const lazyload = function(target){
-
-        
-            const options = {
-                root: null,
-                rootMargin: '0px 0px 30px 0px',
-                threshold: 0
-            }
-    
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    console.log('###')
-    
-                    if(entry.isIntersecting){
-                        const img = entry.target
-                        const src = img.getAttribute('data-src')
-    
-                        img.setAttribute('src' , src)
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, options)
-            
-            targets.forEach((el) => {
-                observer.observe(el);
-              })
-        }
+ 
         
     
         const slideRight = function() {
@@ -98,15 +67,7 @@ const Slider = (() => {
     const getData = async function(url) {
         const res = await fetch(url);
         const data = await res.json();
-
         return data.data;
-        
-    }
-
-    const getDetailImg = async function(url){
-        const res = await fetch(url)
-        const data = await res.json()
-        return data.data.detailList
         
     }
 
@@ -121,22 +82,7 @@ const Slider = (() => {
         }, '');
     }
 
-    const renderDetailImg = function(detail){
-        
-        //  const template = `
-        // <article class="QBXjJ M9sTE h0YNM SgTZ1 Tgarh "></article>
-        //     <img style="width: 100%; height: auto;" data-src={${imgPath}/img/detail02.jpg}>
-        // </article>`
-      //detail.insertAdjacentHTML('afterend' , template)
-
-      console.log(detail)
-        
-        
-        
-    }
-
-
-   
+ 
     const createLi = function(data = {}) {
         const template = `<li class='_-1_m6' style='opacity: 1; width: ${data.width}px;'><div class='bsGjF' style='margin-left: 0px; width: ${data.width}px;'><div role='button' tabindex='0' class='ZyFrc'><div class='eLAPa RzuR0'><div class='KL4Bh' style='padding-bottom: 124.907%;'><img class='FFVAD' decoding='auto' src='${data.img}' style='object-fit: cover;'></div><div class='_9AhH0'></div></div></div></div></li>`;
         return template;
@@ -149,6 +95,91 @@ const Slider = (() => {
 
     return Slider;
 })();
+
+
+
+
+
+
+
+const lazyLoad = (()=>{
+    const targets = document.querySelectorAll('.detailImg[data-src')
+    
+    const url = `https://my-json-server.typicode.com/it-crafts/mockapi/detail/1`
+    const article = document.querySelector('#detailofTop')
+    const create = async () => {
+        let detailData = await getDetailImg(url)
+        createArticle(detailData , imgPath )
+        renderDetailImg(article , detailData)
+        targets.forEach(lazyload)
+    }
+
+
+    const lazyload = function(target){
+
+        
+        const options = {
+            root: null,
+            rootMargin: '0px 0px 30px 0px',
+            threshold: 0
+        }
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                console.log('###')
+
+                if(entry.isIntersecting){
+                    const img = entry.target
+                    const src = img.getAttribute('data-src')
+
+                    img.setAttribute('src' , src)
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, options)
+        
+        targets.forEach((el) => {
+            observer.observe(el);
+          })
+    }
+    
+    const createArticle = function(detailImg) {
+       
+        return ` <article class="QBXjJ M9sTE h0YNM SgTZ1 Tgarh "></article>
+        <img style="width: 100%; height: auto;" data-src=https://raw.githubusercontent.com/it-crafts/mockapi/master${detailImg}>
+     </article>`
+       
+    };
+
+   
+    const renderDetailImg = function(article , detailData){
+        let html ='' 
+        detailData.forEach(el =>  html+= createArticle(el)
+
+            )
+         article.insertAdjacentHTML('afterend' ,html)
+      
+
+      console.log(detailData)
+        
+    }
+
+      const getDetailImg = async function(url){
+        const res = await fetch(url)
+        const data = await res.json()
+        return data.data.detailList
+        
+    }
+    create() 
+})()
+
+
+
+
+
+
+
+
 
 let slider = new Slider({
     selector: '#slider',

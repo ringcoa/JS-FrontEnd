@@ -199,8 +199,9 @@ const root = (async function() {
     // lnb
     let content = new Timeline();
     document.querySelectorAll('.fx7hk > a').forEach(tabButton => {
-        // FIXME 탭전환 비정상작동 버그 픽스
+        // FIXME 탭전환 비정상작동 버그 픽스4
         tabButton.addEventListener('click', async function(e) {
+            if(e.target.id == 'tag'){return} 
             if('' === _loading.style.display) { return; }
             // TODO 로딩바는 비동기 요청 전후에만 on/off
             _loading.style.display = '';
