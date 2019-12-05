@@ -103,49 +103,40 @@ const Slider = (() => {
 
 
 const lazyLoad = (()=>{
-    const targets = document.querySelectorAll('.detailImg[data-src')
     
     const url = `https://my-json-server.typicode.com/it-crafts/mockapi/detail/1`
     const article = document.querySelector('#detailofTop')
     const create = async () => {
         let detailData = await getDetailImg(url)
-        createArticle(detailData , imgPath )
         renderDetailImg(article , detailData)
-        targets.forEach(lazyload)
+        const img = document.querySelector('img[data-src]');
+        img && lazyload(img);
     }
 
-
-    const lazyload = function(target){
-
-        
-        const options = {
-            root: null,
-            rootMargin: '0px 0px 30px 0px',
-            threshold: 0
-        }
-
+    const lazyload = img => {
+        const options = { root: null, threshold: 0, rootMargin: "100px" }
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
-                console.log('###')
-
-                if(entry.isIntersecting){
-                    const img = entry.target
-                    const src = img.getAttribute('data-src')
-
-                    img.setAttribute('src' , src)
-                    observer.unobserve(entry.target);
+                if(!entry.isIntersecting) {
+                    return;
                 }
+                const img = entry.target;
+                img.setAttribute('src' , img.getAttribute('data-src'));
+                img.removeAttribute('data-src');
+                img.onload = (event) => {
+                    const img = document.querySelector('img[data-src]')
+                    img && lazyload(img);
+                };
+                observer.disconnect();
             });
-        }, options)
-        
-        targets.forEach((el) => {
-            observer.observe(el);
-          })
+        }, options);
+
+        observer.observe(img);
     }
     
     const createArticle = function(detailImg) {
        
-        return ` <article class="QBXjJ M9sTE h0YNM SgTZ1 Tgarh "></article>
+        return ` <article class="QBXjJ M9sTE h0YNM SgTZ1 Tgarh ">
         <img style="width: 100%; height: auto;" data-src=https://raw.githubusercontent.com/it-crafts/mockapi/master${detailImg}>
      </article>`
        
